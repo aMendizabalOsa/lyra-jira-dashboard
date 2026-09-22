@@ -29,6 +29,13 @@ function hotfixClauseId(hotfixFieldId) {
   return hotfixFieldId.replace('customfield_', '');
 }
 
+// jiraProjectKey puede ser un único key ("LYRA") o una lista de keys
+// (DspApp/CpuApp/FpgaApp, que son varios proyectos de Jira en lugar de uno).
+function projectClause(jiraProjectKey) {
+  const keys = Array.isArray(jiraProjectKey) ? jiraProjectKey : [jiraProjectKey];
+  return `project in (${keys.map((key) => `"${key}"`).join(', ')})`;
+}
+
 // JQL que encaja cualquiera de las 4 categorías (usada para traer todos los
 // issues relevantes de una vez y clasificarlos en memoria).
 function classifiableFilter(hotfixFieldId) {
@@ -96,8 +103,8 @@ function withDistributionLinks(distributionByBucket) {
 }
 
 async function getBugStats({ tabKey, displayName, jiraProjectKey, bugIssueType, hotfixFieldId }) {
-  const baseOpenJql = `project = "${jiraProjectKey}" AND issuetype = "${bugIssueType}" AND statusCategory != Done`;
-  const baseClosedJql = `project = "${jiraProjectKey}" AND issuetype = "${bugIssueType}" AND statusCategory = Done AND resolutiondate >= ${RESOLUTION_WINDOW_JQL}`;
+  const baseOpenJql = `${projectClause(jiraProjectKey)} AND issuetype = "${bugIssueType}" AND statusCategory != Done`;
+  const baseClosedJql = `${projectClause(jiraProjectKey)} AND issuetype = "${bugIssueType}" AND statusCategory = Done AND resolutiondate >= ${RESOLUTION_WINDOW_JQL}`;
 
   const openJql = `${baseOpenJql} AND ${classifiableFilter(hotfixFieldId)}`;
   const closedJql = `${baseClosedJql} AND ${classifiableFilter(hotfixFieldId)}`;
