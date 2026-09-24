@@ -108,6 +108,15 @@ body {
   outline-offset: 2px;
 }
 
+.app__footer {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
 .app__eyebrow {
   margin: 0 0 6px;
   font-size: 0.72rem;

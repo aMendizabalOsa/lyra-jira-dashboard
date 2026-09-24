@@ -44,6 +44,7 @@ export default function App() {
           <ProjectBugDashboard tabKey={activeTab.key} displayName={activeTab.label} />
         )}
       </main>
+      <footer className="app__footer">Dashboard de bugs · v{__APP_VERSION__}</footer>
     </div>
   );
 }
