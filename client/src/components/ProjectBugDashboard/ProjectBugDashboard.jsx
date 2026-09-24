@@ -37,7 +37,7 @@ export default function ProjectBugDashboard({ tabKey, displayName }) {
     return <p className="status-text status-text--error">Error: {state.error.message}</p>;
   }
 
-  const { open, closedLast6Months, openAgeDays, resolutionTimeDays, weeklyOpenAgeTrend } = state.data;
+  const { open, closedLast6Months, openAgeDays, resolutionTimeDays, weeklyOpenAgeTrend, targetDays } = state.data;
 
   return (
     <div className="dashboard-sections">
@@ -52,9 +52,9 @@ export default function ProjectBugDashboard({ tabKey, displayName }) {
       <section className="dashboard-section">
         <h2 className="dashboard-section__title">Detalle</h2>
         <div className="metric-grid metric-grid--detail">
-          <OpenAgeByPriorityCard openAgeDays={openAgeDays} mode={mode} />
-          <ResolutionTimeCard resolutionTimeDays={resolutionTimeDays} mode={mode} />
-          <WeeklyOpenAgeTrendCard weeklyOpenAgeTrend={weeklyOpenAgeTrend} mode={mode} />
+          <OpenAgeByPriorityCard openAgeDays={openAgeDays} targetDays={targetDays} mode={mode} />
+          <ResolutionTimeCard resolutionTimeDays={resolutionTimeDays} targetDays={targetDays} mode={mode} />
+          <WeeklyOpenAgeTrendCard weeklyOpenAgeTrend={weeklyOpenAgeTrend} targetDays={targetDays} mode={mode} />
         </div>
       </section>
 
@@ -64,12 +64,12 @@ export default function ProjectBugDashboard({ tabKey, displayName }) {
           <DayRangeDistributionCard
             title="Días de media abiertos — por tramos y prioridad"
             distributionByPriority={openAgeDays.distributionByPriority}
-            mode={mode}
+            targetDays={targetDays}
           />
           <DayRangeDistributionCard
             title="Tiempo de resolución — por tramos y prioridad"
             distributionByPriority={resolutionTimeDays.distributionByPriority}
-            mode={mode}
+            targetDays={targetDays}
           />
         </div>
       </section>

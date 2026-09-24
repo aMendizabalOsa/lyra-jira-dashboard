@@ -161,26 +161,38 @@ function weeklyOpenAgeTrend(openIssues, closedIssues, hotfixFieldId, weeks = 26)
   return points;
 }
 
+// Objetivo de resolución por prioridad, en días: un bug debería resolverse
+// antes de superar este límite. Se usa para las líneas de objetivo de las
+// gráficas y para marcar qué tramos quedan dentro del objetivo.
+const TARGET_DAYS = { Hotfix: 15, High: 30, Medium: 90, Low: 360 };
+
 // Tramos de días por bucket de prioridad, usados tanto para "días de media
 // abiertos" (antigüedad) como para "tiempo medio de resolución" (duración) —
 // misma frontera para las dos métricas. min inclusivo, max exclusivo
-// (Infinity para el último tramo abierto).
-const HIGH_MEDIUM_RANGES = [
-  { label: '< 15 días', min: 0, max: 15 },
-  { label: '15-45 días', min: 15, max: 45 },
-  { label: '45-90 días', min: 45, max: 90 },
-  { label: '90-180 días', min: 90, max: 180 },
-  { label: '180-360 días', min: 180, max: 360 },
-  { label: '> 360 días', min: 360, max: Infinity },
-];
-
+// (Infinity para el último tramo abierto). Cada objetivo de TARGET_DAYS es
+// frontera de tramo, para que ningún tramo quede a caballo del límite.
 const DAY_RANGES_BY_BUCKET = {
   Hotfix: [
     { label: '< 15 días', min: 0, max: 15 },
     { label: '≥ 15 días', min: 15, max: Infinity },
   ],
-  High: HIGH_MEDIUM_RANGES,
-  Medium: HIGH_MEDIUM_RANGES,
+  High: [
+    { label: '< 15 días', min: 0, max: 15 },
+    { label: '15-30 días', min: 15, max: 30 },
+    { label: '30-45 días', min: 30, max: 45 },
+    { label: '45-90 días', min: 45, max: 90 },
+    { label: '90-180 días', min: 90, max: 180 },
+    { label: '180-360 días', min: 180, max: 360 },
+    { label: '> 360 días', min: 360, max: Infinity },
+  ],
+  Medium: [
+    { label: '< 15 días', min: 0, max: 15 },
+    { label: '15-45 días', min: 15, max: 45 },
+    { label: '45-90 días', min: 45, max: 90 },
+    { label: '90-180 días', min: 90, max: 180 },
+    { label: '180-360 días', min: 180, max: 360 },
+    { label: '> 360 días', min: 360, max: Infinity },
+  ],
   Low: [
     { label: '< 90 días', min: 0, max: 90 },
     { label: '90-180 días', min: 90, max: 180 },
@@ -215,6 +227,7 @@ function dayRangeDistribution(issues, hotfixFieldId, computeDays) {
   for (const bucket of BUCKETS) {
     byPriority[bucket] = DAY_RANGES_BY_BUCKET[bucket].map((range) => ({
       ...range,
+      withinTarget: range.max <= TARGET_DAYS[bucket],
       count: 0,
       keys: [],
     }));
@@ -237,6 +250,7 @@ function dayRangeDistribution(issues, hotfixFieldId, computeDays) {
 
 module.exports = {
   BUCKETS,
+  TARGET_DAYS,
   countByPriority,
   averageAgeDaysByPriority,
   averageDurationDaysByPriority,

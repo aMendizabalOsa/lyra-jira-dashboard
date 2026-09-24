@@ -5,6 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard de Bugs — Jira</title>
+    <script>
+      // Aplica el tema antes del primer pintado (ver hooks/useColorMode.js).
+      try {
+        let mode = localStorage.getItem('color-mode');
+        if (mode !== 'light' && mode !== 'dark') {
+          mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.dataset.theme = mode;
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

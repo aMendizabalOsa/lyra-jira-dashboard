@@ -1,8 +1,10 @@
 const { searchIssues } = require('../jira/searchIssues');
 const { jiraIssueSearchUrl } = require('../jira/jiraLinks');
+const { projectClause } = require('../jira/jql');
 const { jiraBaseUrl } = require('../config/env');
 const {
   BUCKETS,
+  TARGET_DAYS,
   countByPriority,
   averageAgeDaysByPriority,
   averageDurationDaysByPriority,
@@ -27,13 +29,6 @@ const PRIORITY_BY_BUCKET = { High: 'High', Medium: 'Normal', Low: 'Low' };
 
 function hotfixClauseId(hotfixFieldId) {
   return hotfixFieldId.replace('customfield_', '');
-}
-
-// jiraProjectKey puede ser un único key ("LYRA") o una lista de keys
-// (DspApp/CpuApp/FpgaApp, que son varios proyectos de Jira en lugar de uno).
-function projectClause(jiraProjectKey) {
-  const keys = Array.isArray(jiraProjectKey) ? jiraProjectKey : [jiraProjectKey];
-  return `project in (${keys.map((key) => `"${key}"`).join(', ')})`;
 }
 
 // JQL que encaja cualquiera de las 4 categorías (usada para traer todos los
@@ -91,10 +86,11 @@ function buildKeyLink(keys) {
 function withDistributionLinks(distributionByBucket) {
   const byPriority = {};
   for (const bucket of BUCKETS) {
-    byPriority[bucket] = distributionByBucket[bucket].map(({ label, min, max, count, keys }) => ({
+    byPriority[bucket] = distributionByBucket[bucket].map(({ label, min, max, withinTarget, count, keys }) => ({
       label,
       min,
       max: Number.isFinite(max) ? max : null,
+      withinTarget,
       count,
       link: buildKeyLink(keys),
     }));
@@ -140,6 +136,7 @@ async function getBugStats({ tabKey, displayName, jiraProjectKey, bugIssueType, 
     jiraProjectKey,
     issueType: bugIssueType,
     generatedAt: new Date().toISOString(),
+    targetDays: TARGET_DAYS,
     open: {
       total: open.total,
       link: openLinks.overall,
