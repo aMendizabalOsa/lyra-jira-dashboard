@@ -64,6 +64,11 @@ El `.exe` se marca como aplicación GUI de Windows
   al `.exe`.
 - Si se abre con el dashboard ya en marcha, solo abre el navegador.
 - Solo escucha en `127.0.0.1`: no es accesible desde otros equipos de la red.
+- En Windows confía también en las CAs del almacén de certificados del sistema,
+  para funcionar en redes corporativas que inspeccionan HTTPS con un certificado
+  propio (error "self-signed certificate in certificate chain"). Si la CA de la
+  empresa no está en ese almacén, exporta el certificado raíz (.cer o .pem) y
+  pon su ruta en `EXTRA_CA_CERTS` dentro del `.env`.
 
 ## Añadir un nuevo proyecto (CpuApp, DspApp, FpgaApp)
 

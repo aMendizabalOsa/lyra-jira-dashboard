@@ -3,6 +3,15 @@ const { isPackaged, logPath, redirectConsoleToLogFile, showErrorDialog, openBrow
 
 if (isPackaged) redirectConsoleToLogFile();
 
+// Errores de TLS típicos de un proxy corporativo que intercepta HTTPS (ver
+// jira/trustedCertificates.js).
+const CERTIFICATE_ERRORS = new Set([
+  'SELF_SIGNED_CERT_IN_CHAIN',
+  'DEPTH_ZERO_SELF_SIGNED_CERT',
+  'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+  'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+]);
+
 function exitWithError(...lines) {
   console.error(lines.join('\n'));
   if (isPackaged) showErrorDialog(`${lines.join('\n\n')}\n\nMás detalles en ${logPath}`);
@@ -40,6 +49,15 @@ async function start() {
     console.log(`Autenticado en Jira como: ${me.displayName} (${me.emailAddress})`);
   } catch (err) {
     const detail = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+    if (CERTIFICATE_ERRORS.has(err.code)) {
+      return exitWithError(
+        'No se pudo verificar el certificado HTTPS de Jira. Suele pasar en redes corporativas que ' +
+          'inspeccionan el tráfico HTTPS con un certificado propio de la empresa.',
+        'Exporta el certificado raíz de la empresa (p. ej. desde el candado del navegador en Jira) ' +
+          `y pon su ruta en EXTRA_CA_CERTS dentro de ${env.envPath}.`,
+        detail
+      );
+    }
     return exitWithError(
       `No se pudo autenticar contra Jira. Revisa JIRA_EMAIL y JIRA_API_TOKEN en ${env.envPath}.`,
       detail
