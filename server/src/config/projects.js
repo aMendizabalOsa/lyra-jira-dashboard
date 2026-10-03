@@ -8,6 +8,28 @@ module.exports = {
     bugIssueType: 'Bug',
     hotfixFieldId: 'customfield_10154',
     enabled: true,
+    // Planificación de Lyra: issues creados en el último periodo (window) por tipo
+    // (ver services/planningService.js).
+    planningEnabled: true,
+    // Tres recuentos por tipo, de más estricto a más amplio (`tiers`, en el orden en que se muestran). `unplanned`
+    // es "sin planificar": sin sprint para Bug/Story/FormalDoc, fuera de To Do
+    // para Task (se mira el estado, no el sprint). `unplannedHigh` añade
+    // prioridad superior a Low.
+    recentIssues: {
+      window: '-30d', // JQL relativo (ojo: -1M sería 1 minuto, no 1 mes)
+      windowLabel: 'los últimos 30 días',
+      tiers: [
+        { key: 'unplannedHigh', label: 'Sin planificar, prioridad > Low' },
+        { key: 'unplanned', label: 'Sin planificar' },
+        { key: 'all', label: 'Nuevos' },
+      ],
+      issueTypes: [
+        { type: 'Bug', unplannedFilter: 'sprint is EMPTY' },
+        { type: 'Story', unplannedFilter: 'sprint is EMPTY' },
+        { type: 'Task', unplannedFilter: 'status != "To Do"' },
+        { type: 'FormalDoc', unplannedFilter: 'sprint is EMPTY' },
+      ],
+    },
   },
   // CpuApp no es un único proyecto: son 22 proyectos "CpuApp:*" (mismo
   // patrón que DspApp), comparten customfield_10154 (verificado con CPU3, CPU16

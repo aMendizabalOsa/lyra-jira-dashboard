@@ -443,8 +443,13 @@ body {
   grid-template-columns: repeat(3, 1fr);
 }
 
+.metric-grid--planning-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 @media (max-width: 860px) {
-  .metric-grid--planning {
+  .metric-grid--planning,
+  .metric-grid--planning-4 {
     grid-template-columns: 1fr;
   }
 }
@@ -481,6 +486,18 @@ body {
 .planning-card__count:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
+}
+
+.planning-tier {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.planning-tier__count {
+  margin-top: 0;
+  font-size: 2.2rem;
 }
 
 .planning-card__arrow {

@@ -35,6 +35,10 @@ export default function PlanningView({ tabKey, displayName }) {
     return <p className="status-text status-text--error">Error: {state.error.message}</p>;
   }
 
+  if (state.data.kind === 'recentByType') {
+    return <RecentByTypeCards data={state.data} />;
+  }
+
   const { groups } = state.data;
 
   // Un único grupo sin título (CpuApp) se pinta tal cual; con varios grupos
@@ -78,5 +82,35 @@ function PlanningCards({ group }) {
         );
       })}
     </div>
+  );
+}
+
+function RecentByTypeCards({ data }) {
+  return (
+    <>
+      <p className="planning-card__subtext">Issues creados en {data.windowLabel}</p>
+      <div className="metric-grid metric-grid--planning-4">
+        {data.types.map(({ type, counts }) => (
+          <section key={type} className="metric-card planning-card">
+            <h3 className="metric-card__title">{type}</h3>
+            {counts.map(({ key, label, total, link }) => (
+              <div key={key} className="planning-tier">
+                <a
+                  className="planning-card__count planning-tier__count"
+                  href={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Ver en Jira"
+                >
+                  {total}
+                  <span className="planning-card__arrow" aria-hidden="true">↗</span>
+                </a>
+                <p className="planning-card__subtext">{label}</p>
+              </div>
+            ))}
+          </section>
+        ))}
+      </div>
+    </>
   );
 }

@@ -52,6 +52,7 @@ router.get('/projects/:key/planning', async (req, res, next) => {
       displayName: displayNameOf(tabKey),
       jiraProjectKey: config.jiraProjectKey,
       planningGroups: config.planningGroups,
+      recentIssues: config.recentIssues,
     });
     res.json(planning);
   } catch (err) {
