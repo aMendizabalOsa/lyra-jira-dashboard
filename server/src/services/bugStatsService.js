@@ -1,3 +1,4 @@
+const { getEnvironmentStats } = require('./environmentStatsService');
 const { searchIssues } = require('../jira/searchIssues');
 const { jiraIssueSearchUrl } = require('../jira/jiraLinks');
 const { projectClause } = require('../jira/jql');
@@ -98,16 +99,17 @@ function withDistributionLinks(distributionByBucket) {
   return byPriority;
 }
 
-async function getBugStats({ tabKey, displayName, jiraProjectKey, bugIssueType, hotfixFieldId }) {
+async function getBugStats({ tabKey, displayName, jiraProjectKey, bugIssueType, hotfixFieldId, environmentFieldId }) {
   const baseOpenJql = `${projectClause(jiraProjectKey)} AND issuetype = "${bugIssueType}" AND statusCategory != Done`;
   const baseClosedJql = `${projectClause(jiraProjectKey)} AND issuetype = "${bugIssueType}" AND statusCategory = Done AND resolutiondate >= ${RESOLUTION_WINDOW_JQL}`;
 
   const openJql = `${baseOpenJql} AND ${classifiableFilter(hotfixFieldId)}`;
   const closedJql = `${baseClosedJql} AND ${classifiableFilter(hotfixFieldId)}`;
 
-  const [openIssues, closedIssues] = await Promise.all([
+  const [openIssues, closedIssues, environment] = await Promise.all([
     searchIssues(openJql, ['priority', 'created', 'status', hotfixFieldId]),
     searchIssues(closedJql, ['priority', 'created', 'resolutiondate', 'status', hotfixFieldId]),
+    getEnvironmentStats({ jiraProjectKey, environmentFieldId }),
   ]);
 
   const openLinks = buildLinks(baseOpenJql, hotfixFieldId);
@@ -163,6 +165,7 @@ async function getBugStats({ tabKey, displayName, jiraProjectKey, bugIssueType, 
       byPriority: withAverageLinks(resolutionTime.byPriority, closedLinks),
       distributionByPriority: withDistributionLinks(resolutionDistribution),
     },
+    environment,
     weeklyOpenAgeTrend: {
       weeks: TREND_WEEKS,
       points: openAgeTrend,

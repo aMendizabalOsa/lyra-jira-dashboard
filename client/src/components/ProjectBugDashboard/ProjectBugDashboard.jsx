@@ -7,6 +7,7 @@ import OpenAgeByPriorityCard from './OpenAgeByPriorityCard';
 import ResolutionTimeCard from './ResolutionTimeCard';
 import WeeklyOpenAgeTrendCard from './WeeklyOpenAgeTrendCard';
 import DayRangeDistributionCard from './DayRangeDistributionCard';
+import EnvironmentDonutCard from './EnvironmentDonutCard';
 
 export default function ProjectBugDashboard({ tabKey, displayName }) {
   const [state, setState] = useState({ status: 'loading', data: null, error: null });
@@ -37,7 +38,7 @@ export default function ProjectBugDashboard({ tabKey, displayName }) {
     return <p className="status-text status-text--error">Error: {state.error.message}</p>;
   }
 
-  const { open, closedLast6Months, openAgeDays, resolutionTimeDays, weeklyOpenAgeTrend, targetDays } = state.data;
+  const { open, closedLast6Months, openAgeDays, resolutionTimeDays, weeklyOpenAgeTrend, targetDays, environment } = state.data;
 
   return (
     <div className="dashboard-sections">
@@ -71,6 +72,15 @@ export default function ProjectBugDashboard({ tabKey, displayName }) {
             distributionByPriority={resolutionTimeDays.distributionByPriority}
             targetDays={targetDays}
           />
+        </div>
+      </section>
+
+      <section className="dashboard-section">
+        <h2 className="dashboard-section__title">Environment donde se detectan</h2>
+        <div className="metric-grid metric-grid--summary">
+          {environment.map((stats) => (
+            <EnvironmentDonutCard key={stats.issueType} stats={stats} mode={mode} />
+          ))}
         </div>
       </section>
     </div>

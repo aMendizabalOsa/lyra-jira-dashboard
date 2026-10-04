@@ -31,6 +31,7 @@ router.get('/projects/:key/bug-stats', async (req, res, next) => {
       jiraProjectKey: config.jiraProjectKey,
       bugIssueType: config.bugIssueType,
       hotfixFieldId: config.hotfixFieldId,
+      environmentFieldId: config.environmentFieldId,
     });
     res.json(stats);
   } catch (err) {

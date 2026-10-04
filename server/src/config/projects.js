@@ -1,12 +1,14 @@
 // Fuente de verdad: pestaña del dashboard -> proyecto real de Jira.
 // Para activar una pestaña nueva, basta con poner su jiraProjectKey real,
 // su hotfixFieldId (customfield_XXXXX del checkbox "Hotfix" de ese proyecto,
-// consultable vía GET /rest/api/3/field) y enabled: true.
+// consultable vía GET /rest/api/3/field), su environmentFieldId (select
+// "Environment -", customfield_10302, igual en los cuatro) y enabled: true.
 module.exports = {
   lyra: {
     jiraProjectKey: 'LYRA',
     bugIssueType: 'Bug',
     hotfixFieldId: 'customfield_10154',
+    environmentFieldId: 'customfield_10302',
     enabled: true,
     // Planificación de Lyra: issues creados en el último periodo (window) por tipo
     // (ver services/planningService.js).
@@ -42,6 +44,7 @@ module.exports = {
     ],
     bugIssueType: 'Bug',
     hotfixFieldId: 'customfield_10154',
+    environmentFieldId: 'customfield_10302',
     enabled: true,
     // Sub-pestaña "Planificación" (ver services/planningService.js).
     planningEnabled: true,
@@ -56,6 +59,7 @@ module.exports = {
     ],
     bugIssueType: 'Bug',
     hotfixFieldId: 'customfield_10154',
+    environmentFieldId: 'customfield_10302',
     enabled: true,
     // Planificación por tipo de convertidor, como en FpgaApp. No hay proyectos
     // APS; en su lugar se separa el rectificador trifásico (1RectTri) del
@@ -84,6 +88,7 @@ module.exports = {
     ],
     bugIssueType: 'Bug',
     hotfixFieldId: 'customfield_10154',
+    environmentFieldId: 'customfield_10302',
     enabled: true,
     // Planificación separada por tipo de convertidor, según el nombre del
     // proyecto: 1Rect, 1Dcdc, 1Aps e inversor (1Inv, y también los 2Inv).
