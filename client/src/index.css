@@ -140,7 +140,8 @@ body {
 }
 
 .tab-nav {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   justify-content: center;
   gap: 2px;
   background: var(--surface-1);

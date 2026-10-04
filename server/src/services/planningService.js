@@ -3,7 +3,7 @@ const { jiraIssueSearchUrl } = require('../jira/jiraLinks');
 const { projectClause } = require('../jira/jql');
 const { jiraBaseUrl } = require('../config/env');
 
-const NEW_ISSUES_WINDOW_JQL = '-2w';
+const NEW_ISSUES_WINDOW_JQL = '-30d';
 
 // A diferencia de las estadísticas, aquí entran todos los tipos de issue, no
 // solo bugs. "Sin planificar" = sin sprint y todavía sin resolver: un issue ya

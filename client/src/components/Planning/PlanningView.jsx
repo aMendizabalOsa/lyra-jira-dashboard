@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { fetchPlanning } from '../../api/bugStatsApi';
 
 const SECTIONS = [
-  { key: 'newIssues', title: 'Issues nuevos', subtext: 'Creados en las últimas 2 semanas' },
+  { key: 'newIssues', title: 'Issues nuevos', subtext: 'Creados en las últimos 30 días' },
   { key: 'unplanned', title: 'Issues sin planificar', subtext: 'Sin sprint y sin resolver' },
   { key: 'unresolved', title: 'Issues sin resolver', subtext: 'Todos los tipos de issue' },
 ];
