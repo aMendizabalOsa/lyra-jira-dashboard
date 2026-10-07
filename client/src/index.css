@@ -441,7 +441,7 @@ body {
 }
 
 .metric-grid--planning {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .metric-grid--planning-4 {

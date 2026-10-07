@@ -3,6 +3,7 @@ import { fetchPlanning } from '../../api/bugStatsApi';
 
 const SECTIONS = [
   { key: 'newIssues', title: 'Issues nuevos', subtext: 'Creados en las últimos 30 días' },
+  { key: 'unplannedHigh', title: 'Sin planificar, prioridad > Low', subtext: 'Sin sprint, sin resolver y prioridad superior a Low' },
   { key: 'unplanned', title: 'Issues sin planificar', subtext: 'Sin sprint y sin resolver' },
   { key: 'unresolved', title: 'Issues sin resolver', subtext: 'Todos los tipos de issue' },
 ];
@@ -51,7 +52,7 @@ export default function PlanningView({ tabKey, displayName }) {
     <div className="dashboard-sections">
       {groups.map((group) => (
         <section key={group.key} className="dashboard-section">
-          <h2 className="dashboard-section__title">{group.label}</h2>
+          <h2 className="dashboard-section__title">{group.icon ? `${group.icon} ` : ''}{group.label}</h2>
           <PlanningCards group={group} />
         </section>
       ))}

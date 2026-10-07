@@ -46,8 +46,26 @@ module.exports = {
     hotfixFieldId: 'customfield_10154',
     environmentFieldId: 'customfield_10302',
     enabled: true,
-    // Sub-pestaña "Planificación" (ver services/planningService.js).
+    // Sub-pestaña "Planificación" (ver services/planningService.js). Se separa
+    // Compac3 (tranvía; CpuApp:Compac3* y Compac3S*) del resto, que son
+    // aplicaciones genéricas de test.
     planningEnabled: true,
+    planningGroups: [
+      {
+        key: 'generic',
+        label: 'Aplicaciones genéricas de test',
+        jiraProjectKey: [
+          'CPU6', 'CPU7', 'CPU8', 'CPU9', 'CPU16', 'CPU21', 'CPU22', 'CPU26',
+          'CPU27', 'CPU28', 'CPU29', 'CPU39', 'CPU43', 'CPU44', 'CPU45', 'CPU48',
+        ],
+      },
+      {
+        key: 'compac3',
+        label: 'Compac3',
+        icon: '🚋',
+        jiraProjectKey: ['CPU3', 'CPU4', 'CPU30', 'CPU31', 'CPU35'],
+      },
+    ],
   },
   // DspApp no es un único proyecto de Jira: son 18 proyectos "DspApp:*"
   // (uno por variante de hardware/control), todos comparten el mismo campo

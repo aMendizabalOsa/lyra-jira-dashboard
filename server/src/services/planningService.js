@@ -4,14 +4,17 @@ const { projectClause } = require('../jira/jql');
 const { jiraBaseUrl } = require('../config/env');
 
 const NEW_ISSUES_WINDOW_JQL = '-30d';
+const NOT_EPIC = 'issuetype != Epic';
 
 // A diferencia de las estadísticas, aquí entran todos los tipos de issue, no
-// solo bugs. "Sin planificar" = sin sprint y todavía sin resolver: un issue ya
-// resuelto sin sprint no tiene nada que planificar.
+// solo bugs, salvo los Epic, que se excluyen de todas las listas. "Sin
+// planificar" = sin sprint y todavía sin resolver: un issue ya resuelto sin
+// sprint no tiene nada que planificar.
 const LISTS = {
-  newIssues: `created >= ${NEW_ISSUES_WINDOW_JQL}`,
-  unplanned: 'sprint is EMPTY AND resolution is EMPTY',
-  unresolved: 'resolution is EMPTY',
+  newIssues: `created >= ${NEW_ISSUES_WINDOW_JQL} AND ${NOT_EPIC}`,
+  unplanned: `sprint is EMPTY AND resolution is EMPTY AND ${NOT_EPIC}`,
+  unplannedHigh: `sprint is EMPTY AND resolution is EMPTY AND priority > Low AND ${NOT_EPIC}`,
+  unresolved: `resolution is EMPTY AND ${NOT_EPIC}`,
 };
 
 async function countLists(jiraProjectKey) {
@@ -77,6 +80,7 @@ async function getPlanning({ tabKey, displayName, jiraProjectKey, planningGroups
     groupDefs.map(async (group) => ({
       key: group.key,
       label: group.label,
+      icon: group.icon,
       ...(await countLists(group.jiraProjectKey)),
     }))
   );
