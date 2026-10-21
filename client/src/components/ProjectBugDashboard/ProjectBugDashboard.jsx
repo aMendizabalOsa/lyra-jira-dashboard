@@ -38,7 +38,41 @@ export default function ProjectBugDashboard({ tabKey, displayName }) {
     return <p className="status-text status-text--error">Error: {state.error.message}</p>;
   }
 
-  const { open, closedLast6Months, openAgeDays, resolutionTimeDays, weeklyOpenAgeTrend, targetDays, environment } = state.data;
+  if (state.data.groups) {
+    return <GroupedBugStats groups={state.data.groups} displayName={displayName} mode={mode} />;
+  }
+
+  return <BugStats stats={state.data} mode={mode} />;
+}
+
+// Un grupo por pestaña (p. ej. Compac3 / aplicaciones genéricas de test en CpuApp).
+function GroupedBugStats({ groups, displayName, mode }) {
+  const [activeKey, setActiveKey] = useState(groups[0].key);
+  const active = groups.find((group) => group.key === activeKey) || groups[0];
+
+  return (
+    <>
+      <nav className="sub-tab-nav" role="tablist" aria-label={`Grupos de ${displayName}`}>
+        {groups.map((group) => (
+          <button
+            key={group.key}
+            type="button"
+            role="tab"
+            aria-selected={group.key === active.key}
+            className={`sub-tab-nav__item${group.key === active.key ? ' sub-tab-nav__item--active' : ''}`}
+            onClick={() => setActiveKey(group.key)}
+          >
+            {group.icon ? `${group.icon} ` : ''}{group.label}
+          </button>
+        ))}
+      </nav>
+      <BugStats key={active.key} stats={active.stats} mode={mode} />
+    </>
+  );
+}
+
+function BugStats({ stats, mode }) {
+  const { open, closedLast6Months, openAgeDays, resolutionTimeDays, weeklyOpenAgeTrend, targetDays, environment } = stats;
 
   return (
     <div className="dashboard-sections">

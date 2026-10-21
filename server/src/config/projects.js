@@ -3,7 +3,7 @@
 // su hotfixFieldId (customfield_XXXXX del checkbox "Hotfix" de ese proyecto,
 // consultable vía GET /rest/api/3/field), su environmentFieldId (select
 // "Environment -", customfield_10302, igual en los cuatro) y enabled: true.
-module.exports = {
+const projects = {
   lyra: {
     jiraProjectKey: 'LYRA',
     bugIssueType: 'Bug',
@@ -28,17 +28,17 @@ module.exports = {
       issueTypes: [
         { type: 'Bug', unplannedFilter: 'sprint is EMPTY' },
         { type: 'Story', unplannedFilter: 'sprint is EMPTY' },
-        { type: 'Task', unplannedFilter: 'status != "To Do"' },
+        { type: 'Task', unplannedFilter: 'status = "To Do"', ignorePriority: true },
         { type: 'FormalDoc', unplannedFilter: 'sprint is EMPTY' },
       ],
     },
   },
   // CpuApp no es un único proyecto: son 22 proyectos "CpuApp:*" (mismo
   // patrón que DspApp), comparten customfield_10154 (verificado con CPU3, CPU16
-  // y CPU44). Se excluye CPU2 (CpuApp:Compac3) a petición del usuario.
+  // y CPU44). CPU2 (CpuApp:Compac3) tiene su propio grupo.
   cpuapp: {
     jiraProjectKey: [
-      'CPU3', 'CPU4', 'CPU6', 'CPU7', 'CPU8', 'CPU9', 'CPU16', 'CPU21', 'CPU22',
+      'CPU2', 'CPU3', 'CPU4', 'CPU6', 'CPU7', 'CPU8', 'CPU9', 'CPU16', 'CPU21', 'CPU22',
       'CPU26', 'CPU27', 'CPU28', 'CPU29', 'CPU30', 'CPU31', 'CPU35', 'CPU39',
       'CPU43', 'CPU44', 'CPU45', 'CPU48',
     ],
@@ -47,9 +47,11 @@ module.exports = {
     environmentFieldId: 'customfield_10302',
     enabled: true,
     // Sub-pestaña "Planificación" (ver services/planningService.js). Se separa
-    // Compac3 (tranvía; CpuApp:Compac3* y Compac3S*) del resto, que son
-    // aplicaciones genéricas de test.
+    // Compac3 (CpuApp:Compac3) de Compac3-Test (tranvía; CpuApp:Compac3* y
+    // Compac3S*) y del resto, que son aplicaciones genéricas de test.
     planningEnabled: true,
+    // Las estadísticas de bugs también se separan en esos mismos grupos.
+    statsByPlanningGroup: true,
     planningGroups: [
       {
         key: 'generic',
@@ -60,11 +62,11 @@ module.exports = {
         ],
       },
       {
-        key: 'compac3',
-        label: 'Compac3',
-        icon: '🚋',
+        key: 'compac3test',
+        label: 'Compac3-Test',
         jiraProjectKey: ['CPU3', 'CPU4', 'CPU30', 'CPU31', 'CPU35'],
       },
+      { key: 'compac3', label: 'Compac3', icon: '🚋', jiraProjectKey: ['CPU2'] },
     ],
   },
   // DspApp no es un único proyecto de Jira: son 18 proyectos "DspApp:*"
@@ -124,3 +126,23 @@ module.exports = {
     ],
   },
 };
+
+// Estadísticas de Lyra en dos pestañas: "Global" suma los componentes de Lyra,
+// las aplicaciones genéricas de test de CpuApp, DspApp y FpgaApp; "Componentes"
+// es solo Lyra.
+const cpuGeneric = projects.cpuapp.planningGroups.find((group) => group.key === 'generic');
+projects.lyra.statsGroups = [
+  {
+    key: 'global',
+    label: 'Global',
+    jiraProjectKey: [
+      projects.lyra.jiraProjectKey,
+      ...cpuGeneric.jiraProjectKey,
+      ...projects.dspapp.jiraProjectKey,
+      ...projects.fpgaapp.jiraProjectKey,
+    ],
+  },
+  { key: 'components', label: 'Componentes', jiraProjectKey: projects.lyra.jiraProjectKey },
+];
+
+module.exports = projects;

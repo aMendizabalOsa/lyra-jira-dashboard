@@ -38,15 +38,15 @@ async function countLists(jiraProjectKey) {
 async function countRecentByType(jiraProjectKey, { window, windowLabel, tiers, issueTypes }) {
   const base = projectClause(jiraProjectKey);
 
-  const tierFilters = (unplannedFilter) => ({
+  const tierFilters = (unplannedFilter, ignorePriority) => ({
     all: null,
     unplanned: unplannedFilter,
-    unplannedHigh: `${unplannedFilter} AND priority > Low`,
+    unplannedHigh: ignorePriority ? unplannedFilter : `${unplannedFilter} AND priority > Low`,
   });
 
   const types = await Promise.all(
-    issueTypes.map(async ({ type, unplannedFilter }) => {
-      const filters = tierFilters(unplannedFilter);
+    issueTypes.map(async ({ type, unplannedFilter, ignorePriority }) => {
+      const filters = tierFilters(unplannedFilter, ignorePriority);
       const counts = await Promise.all(
         tiers.map(async ({ key, label }) => {
           const extra = filters[key] ? ` AND ${filters[key]}` : '';

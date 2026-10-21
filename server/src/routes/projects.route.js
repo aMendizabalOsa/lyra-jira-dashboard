@@ -25,15 +25,30 @@ router.get('/projects/:key/bug-stats', async (req, res, next) => {
   if (!config || !config.enabled) return notConfigured(res, tabKey, 'un proyecto de Jira');
 
   try {
-    const stats = await getBugStats({
-      tabKey,
-      displayName: displayNameOf(tabKey),
-      jiraProjectKey: config.jiraProjectKey,
-      bugIssueType: config.bugIssueType,
-      hotfixFieldId: config.hotfixFieldId,
-      environmentFieldId: config.environmentFieldId,
-    });
-    res.json(stats);
+    const statsFor = (jiraProjectKey) =>
+      getBugStats({
+        tabKey,
+        displayName: displayNameOf(tabKey),
+        jiraProjectKey,
+        bugIssueType: config.bugIssueType,
+        hotfixFieldId: config.hotfixFieldId,
+        environmentFieldId: config.environmentFieldId,
+      });
+
+    const statsGroups = config.statsGroups || (config.statsByPlanningGroup && config.planningGroups);
+    if (statsGroups) {
+      const groups = await Promise.all(
+        statsGroups.map(async (group) => ({
+          key: group.key,
+          label: group.label,
+          icon: group.icon,
+          stats: await statsFor(group.jiraProjectKey),
+        }))
+      );
+      return res.json({ tabKey, displayName: displayNameOf(tabKey), groups });
+    }
+
+    res.json(await statsFor(config.jiraProjectKey));
   } catch (err) {
     next(err);
   }
