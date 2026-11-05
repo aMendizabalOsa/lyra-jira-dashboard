@@ -69,6 +69,18 @@ const projects = {
       { key: 'compac3', label: 'Compac3', icon: '🚋', jiraProjectKey: ['CPU2'] },
     ],
   },
+  // BMS (acumulación energética): un único proyecto de Jira. Su tipo
+  // "Nuevo desarrollo" equivale al Story del resto. Sin planificación.
+  bms: {
+    jiraProjectKey: 'BMS',
+    bugIssueType: 'Bug',
+    storyIssueType: 'Nuevo desarrollo',
+    // Los bugs de BMS se cierran sin Resolution (resolutiondate vacío).
+    closedByStatusChange: true,
+    hotfixFieldId: 'customfield_10154',
+    environmentFieldId: 'customfield_10302',
+    enabled: true,
+  },
   // DspApp no es un único proyecto de Jira: son 18 proyectos "DspApp:*"
   // (uno por variante de hardware/control), todos comparten el mismo campo
   // Hotfix (customfield_10154, verificado contra DSP12 y DSP36).

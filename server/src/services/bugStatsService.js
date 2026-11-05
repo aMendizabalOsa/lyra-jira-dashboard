@@ -99,18 +99,25 @@ function withDistributionLinks(distributionByBucket) {
   return byPriority;
 }
 
-async function getBugStats({ tabKey, displayName, jiraProjectKey, bugIssueType, hotfixFieldId, environmentFieldId }) {
+async function getBugStats({ tabKey, displayName, jiraProjectKey, bugIssueType, hotfixFieldId, environmentFieldId, storyIssueType, closedByStatusChange }) {
+  // Algunos workflows (BMS) cierran sin informar Resolution, así que resolutiondate
+  // queda vacío: se usa la fecha del último cambio de categoría de estado.
+  const closedJqlField = closedByStatusChange ? 'statusCategoryChangedDate' : 'resolutiondate';
+  const closedRestField = closedByStatusChange ? 'statuscategorychangedate' : 'resolutiondate';
   const baseOpenJql = `${projectClause(jiraProjectKey)} AND issuetype = "${bugIssueType}" AND statusCategory != Done`;
-  const baseClosedJql = `${projectClause(jiraProjectKey)} AND issuetype = "${bugIssueType}" AND statusCategory = Done AND resolutiondate >= ${RESOLUTION_WINDOW_JQL}`;
+  const baseClosedJql = `${projectClause(jiraProjectKey)} AND issuetype = "${bugIssueType}" AND statusCategory = Done AND ${closedJqlField} >= ${RESOLUTION_WINDOW_JQL}`;
 
   const openJql = `${baseOpenJql} AND ${classifiableFilter(hotfixFieldId)}`;
   const closedJql = `${baseClosedJql} AND ${classifiableFilter(hotfixFieldId)}`;
 
   const [openIssues, closedIssues, environment] = await Promise.all([
     searchIssues(openJql, ['priority', 'created', 'status', hotfixFieldId]),
-    searchIssues(closedJql, ['priority', 'created', 'resolutiondate', 'status', hotfixFieldId]),
-    getEnvironmentStats({ jiraProjectKey, environmentFieldId }),
+    searchIssues(closedJql, ['priority', 'created', closedRestField, 'status', hotfixFieldId]),
+    getEnvironmentStats({ jiraProjectKey, environmentFieldId, storyIssueType }),
   ]);
+  if (closedByStatusChange) {
+    for (const issue of closedIssues) issue.fields.resolutiondate = issue.fields[closedRestField];
+  }
 
   const openLinks = buildLinks(baseOpenJql, hotfixFieldId);
   const closedLinks = buildLinks(baseClosedJql, hotfixFieldId);

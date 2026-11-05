@@ -165,6 +165,12 @@ body {
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+.tab-nav__icon {
+  height: 1.2em;
+  margin-right: 6px;
+  vertical-align: -0.2em;
+}
+
 .tab-nav__item:hover {
   color: var(--text-primary);
   background: var(--surface-2);

@@ -33,6 +33,8 @@ router.get('/projects/:key/bug-stats', async (req, res, next) => {
         bugIssueType: config.bugIssueType,
         hotfixFieldId: config.hotfixFieldId,
         environmentFieldId: config.environmentFieldId,
+        storyIssueType: config.storyIssueType,
+        closedByStatusChange: config.closedByStatusChange,
       });
 
     const statsGroups = config.statsGroups || (config.statsByPlanningGroup && config.planningGroups);

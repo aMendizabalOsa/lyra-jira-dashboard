@@ -27,9 +27,9 @@ function quote(values) {
   return values.map((v) => `"${v.replace(/"/g, '\\"')}"`).join(', ');
 }
 
-async function statsForType({ jiraProjectKey, issueType, environmentFieldId }) {
+async function statsForType({ jiraProjectKey, issueType, jiraIssueType = issueType, environmentFieldId }) {
   const fieldClause = `cf[${environmentFieldId.replace('customfield_', '')}]`;
-  const base = `${projectClause(jiraProjectKey)} AND issuetype = "${issueType}"`;
+  const base = `${projectClause(jiraProjectKey)} AND issuetype = "${jiraIssueType}"`;
   const withEnv = `${base} AND ${fieldClause} is not EMPTY`;
 
   const [issues, all] = await Promise.all([
@@ -71,9 +71,17 @@ async function statsForType({ jiraProjectKey, issueType, environmentFieldId }) {
   };
 }
 
-async function getEnvironmentStats({ jiraProjectKey, environmentFieldId }) {
+// storyIssueType: nombre real en Jira del tipo equivalente a Story (BMS lo llama "Nuevo desarrollo").
+async function getEnvironmentStats({ jiraProjectKey, environmentFieldId, storyIssueType }) {
   const byType = await Promise.all(
-    ISSUE_TYPES.map((issueType) => statsForType({ jiraProjectKey, issueType, environmentFieldId }))
+    ISSUE_TYPES.map((issueType) =>
+      statsForType({
+        jiraProjectKey,
+        issueType,
+        jiraIssueType: issueType === 'Story' && storyIssueType ? storyIssueType : issueType,
+        environmentFieldId,
+      })
+    )
   );
   return byType;
 }
