@@ -1,4 +1,6 @@
-import { Bar, Cell, ComposedChart, LabelList, ResponsiveContainer, Scatter, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, Cell, ComposedChart, LabelList, Scatter, Tooltip, XAxis, YAxis } from 'recharts';
+import ChartContainer, { TOOLTIP_PROPS } from './ChartContainer';
+import { formatNumber } from '../../utils/format';
 import { priorityColor, toOrderedSeries } from '../../config/priorityColors';
 import { averageColor } from '../../config/targetColors';
 
@@ -9,7 +11,7 @@ function ValueTooltip({ active, payload, unit, showCount }) {
     <div className="chart-tooltip">
       <strong>{name}</strong>
       <span>
-        {value} {unit}
+        {formatNumber(value)} {unit}
         {showCount ? ` (${count} ${count === 1 ? 'bug' : 'bugs'})` : ''}
       </span>
       {target != null && (
@@ -60,7 +62,7 @@ export default function PriorityBarChart({
     targetDays && entry.count > 0 ? averageColor(entry.value, entry.target) : priorityColor(entry.name, mode);
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
+    <ChartContainer height={200}>
       <ComposedChart data={data} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
         <XAxis
           dataKey="name"
@@ -73,11 +75,13 @@ export default function PriorityBarChart({
           content={<ValueTooltip unit={unit} showCount={showCount} />}
           cursor={{ fill: 'var(--surface-2)' }}
           shared={false}
+          {...TOOLTIP_PROPS}
         />
         <Bar
           dataKey="value"
           radius={[4, 4, 0, 0]}
           maxBarSize={48}
+          minPointSize={2}
           cursor="pointer"
           onClick={(entry) => {
             if (entry?.link) window.open(entry.link, '_blank', 'noopener,noreferrer');
@@ -95,6 +99,6 @@ export default function PriorityBarChart({
         </Bar>
         {targetDays && <Scatter dataKey="target" shape={<TargetMark />} isAnimationActive={false} />}
       </ComposedChart>
-    </ResponsiveContainer>
+    </ChartContainer>
   );
 }

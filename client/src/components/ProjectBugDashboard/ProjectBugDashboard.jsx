@@ -8,8 +8,9 @@ import ResolutionTimeCard from './ResolutionTimeCard';
 import WeeklyOpenAgeTrendCard from './WeeklyOpenAgeTrendCard';
 import DayRangeDistributionCard from './DayRangeDistributionCard';
 import EnvironmentDonutCard from './EnvironmentDonutCard';
+import PriorityLegend from './PriorityLegend';
 
-export default function ProjectBugDashboard({ tabKey, displayName }) {
+export default function ProjectBugDashboard({ tabKey, displayName, statsGroupKey, onStatsGroupChange }) {
   const [state, setState] = useState({ status: 'loading', data: null, error: null });
   const mode = useColorMode();
 
@@ -39,15 +40,24 @@ export default function ProjectBugDashboard({ tabKey, displayName }) {
   }
 
   if (state.data.groups) {
-    return <GroupedBugStats groups={state.data.groups} displayName={displayName} mode={mode} />;
+    return (
+      <GroupedBugStats
+        groups={state.data.groups}
+        displayName={displayName}
+        mode={mode}
+        activeKey={statsGroupKey}
+        onSelect={onStatsGroupChange}
+      />
+    );
   }
 
   return <BugStats stats={state.data} mode={mode} />;
 }
 
 // Un grupo por pestaña (p. ej. Compac3 / aplicaciones genéricas de test en CpuApp).
-function GroupedBugStats({ groups, displayName, mode }) {
-  const [activeKey, setActiveKey] = useState(groups[0].key);
+// El grupo elegido se recuerda entre proyectos si el nuevo proyecto tiene uno
+// con la misma clave; si no, se muestra el primero.
+function GroupedBugStats({ groups, displayName, mode, activeKey, onSelect }) {
   const active = groups.find((group) => group.key === activeKey) || groups[0];
 
   return (
@@ -60,12 +70,13 @@ function GroupedBugStats({ groups, displayName, mode }) {
             role="tab"
             aria-selected={group.key === active.key}
             className={`sub-tab-nav__item${group.key === active.key ? ' sub-tab-nav__item--active' : ''}`}
-            onClick={() => setActiveKey(group.key)}
+            onClick={() => onSelect(group.key)}
           >
             {group.icon ? `${group.icon} ` : ''}{group.label}
           </button>
         ))}
       </nav>
+      {active.description && <p className="group-description">{active.description}</p>}
       <BugStats key={active.key} stats={active.stats} mode={mode} />
     </>
   );
@@ -78,6 +89,7 @@ function BugStats({ stats, mode }) {
     <div className="dashboard-sections">
       <section className="dashboard-section">
         <h2 className="dashboard-section__title">Resumen</h2>
+        <PriorityLegend mode={mode} />
         <div className="metric-grid metric-grid--summary">
           <OpenBugsCard open={open} mode={mode} />
           <ClosedLast6MonthsCard closedLast6Months={closedLast6Months} mode={mode} />
@@ -97,7 +109,7 @@ function BugStats({ stats, mode }) {
         <h2 className="dashboard-section__title">Distribución por tramos de días</h2>
         <div className="metric-grid">
           <DayRangeDistributionCard
-            title="Días de media abiertos — por tramos y prioridad"
+            title="Antigüedad de los bugs abiertos — por tramos y prioridad"
             distributionByPriority={openAgeDays.distributionByPriority}
             targetDays={targetDays}
           />

@@ -1,4 +1,5 @@
-import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, Cell, LabelList, Tooltip, XAxis, YAxis } from 'recharts';
+import ChartContainer, { TOOLTIP_PROPS } from './ChartContainer';
 import { rangeColors } from '../../config/targetColors';
 
 // Etiqueta corta para el eje (el label completo, con "días", se reserva
@@ -27,7 +28,7 @@ export default function DayRangeDistributionChart({ ranges }) {
   const colors = rangeColors(ranges);
 
   return (
-    <ResponsiveContainer width="100%" height={170}>
+    <ChartContainer height={170}>
       <BarChart data={ranges} margin={{ top: 16, right: 4, left: 4, bottom: 0 }}>
         <XAxis
           dataKey="label"
@@ -41,11 +42,12 @@ export default function DayRangeDistributionChart({ ranges }) {
           height={34}
         />
         <YAxis hide domain={[0, (max) => (max === 0 ? 1 : Math.ceil(max * 1.25))]} />
-        <Tooltip content={<DistributionTooltip />} cursor={{ fill: 'var(--surface-2)' }} />
+        <Tooltip content={<DistributionTooltip />} cursor={{ fill: 'var(--surface-2)' }} {...TOOLTIP_PROPS} />
         <Bar
           dataKey="count"
           radius={[3, 3, 0, 0]}
           maxBarSize={32}
+          minPointSize={2}
           cursor="pointer"
           onClick={(entry) => {
             if (entry?.link) window.open(entry.link, '_blank', 'noopener,noreferrer');
@@ -57,6 +59,6 @@ export default function DayRangeDistributionChart({ ranges }) {
           <LabelList dataKey="count" position="top" style={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
         </Bar>
       </BarChart>
-    </ResponsiveContainer>
+    </ChartContainer>
   );
 }

@@ -38,17 +38,22 @@ async function countLists(jiraProjectKey) {
 async function countRecentByType(jiraProjectKey, { window, windowLabel, tiers, issueTypes }) {
   const base = projectClause(jiraProjectKey);
 
-  const tierFilters = (unplannedFilter, ignorePriority) => ({
+  const tierFilters = (unplannedFilter) => ({
     all: null,
     unplanned: unplannedFilter,
-    unplannedHigh: ignorePriority ? unplannedFilter : `${unplannedFilter} AND priority > Low`,
+    unplannedHigh: `${unplannedFilter} AND priority > Low`,
   });
 
   const types = await Promise.all(
-    issueTypes.map(async ({ type, unplannedFilter, ignorePriority }) => {
-      const filters = tierFilters(unplannedFilter, ignorePriority);
+    issueTypes.map(async ({ type, unplannedFilter, unplannedLabel, ignorePriority }) => {
+      const filters = tierFilters(unplannedFilter);
       const counts = await Promise.all(
         tiers.map(async ({ key, label }) => {
+          // Tipos sin prioridad (Task): el recuento por prioridad no aplica.
+          if (key === 'unplannedHigh' && ignorePriority) {
+            return { key, label, total: null, link: null, notApplicable: 'No aplica: este tipo no usa prioridad' };
+          }
+          if (key === 'unplanned' && unplannedLabel) label = unplannedLabel;
           const extra = filters[key] ? ` AND ${filters[key]}` : '';
           const jql = `${base} AND issuetype = "${type}" AND created >= ${window}${extra} ORDER BY created DESC`;
           const issues = await searchIssues(jql, ['key']);
@@ -59,7 +64,7 @@ async function countRecentByType(jiraProjectKey, { window, windowLabel, tiers, i
     })
   );
 
-  return { windowLabel, types };
+  return { windowLabel, tiers, types };
 }
 
 // Sin planningGroups, toda la pestaña es un único grupo sin título.

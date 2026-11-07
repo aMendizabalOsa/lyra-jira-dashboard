@@ -1,6 +1,7 @@
 import MetricCard from './MetricCard';
 import WeeklyPriorityTrendChart from './WeeklyPriorityTrendChart';
 import { PRIORITY_ORDER, priorityColor } from '../../config/priorityColors';
+import { formatDays } from '../../utils/format';
 
 // Una tarjeta por prioridad (Hotfix/High/Medium/Low): evolución semanal de
 // la media de días que llevaban abiertos los bugs de esa categoría.
@@ -14,8 +15,8 @@ export default function WeeklyOpenAgeTrendCard({ weeklyOpenAgeTrend, targetDays,
         <MetricCard
           key={bucket}
           title={`${bucket} — evolución semanal (${weeks} semanas)`}
-          headline={`${latest.byPriority[bucket].average} días`}
-          subtext={`${latest.byPriority[bucket].count} bugs esta semana`}
+          headline={formatDays(latest.byPriority[bucket].average)}
+          subtext={`media de ${latest.byPriority[bucket].count} abiertos esta semana`}
         >
           <div className="target-legend">
             <span className="target-legend__item">

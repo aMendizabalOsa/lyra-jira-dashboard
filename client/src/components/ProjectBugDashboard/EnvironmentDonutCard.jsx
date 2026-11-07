@@ -1,4 +1,5 @@
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { Cell, Pie, PieChart, Tooltip } from 'recharts';
+import ChartContainer, { TOOLTIP_PROPS } from './ChartContainer';
 import { environmentColor } from '../../config/environmentColors';
 import MetricCard from './MetricCard';
 
@@ -22,18 +23,28 @@ function SliceTooltip({ active, payload, total, unit }) {
 // Donut del campo Environment para un tipo de issue. Solo entran los issues
 // con Environment informado; el resto se indica debajo.
 export default function EnvironmentDonutCard({ stats, mode }) {
-  const { issueType, total, withoutEnvironment, link, slices } = stats;
+  const { issueType, total, withoutEnvironment, withoutEnvironmentLink, link, slices } = stats;
+  const all = total + withoutEnvironment;
+  const coverage = all ? Math.round((total / all) * 100) : 0;
   const unit = PLURAL[issueType] || issueType;
   const open = (url) => url && window.open(url, '_blank', 'noopener,noreferrer');
 
   return (
-    <MetricCard title={`${unit[0].toUpperCase()}${unit.slice(1)} por Environment`} headline={total} link={link}>
+    <MetricCard title={`${unit[0].toUpperCase()}${unit.slice(1)} por Environment`} link={link}>
+      {withoutEnvironment > 0 && (
+        <p className={`env-coverage${coverage < 50 ? ' env-coverage--low' : ''}`}>
+          {coverage < 50 ? 'Solo el' : 'El'} {coverage}% de los {unit} tiene Environment ({total} de {all}).{' '}
+          <a href={withoutEnvironmentLink} target="_blank" rel="noopener noreferrer">
+            Ver los {withoutEnvironment} sin Environment ↗
+          </a>
+        </p>
+      )}
       {total === 0 ? (
         <p className="status-text">Ningún {issueType} tiene Environment informado.</p>
       ) : (
         <div className="env-donut">
           <div className="env-donut__chart">
-            <ResponsiveContainer width="100%" height={200}>
+            <ChartContainer height={200}>
               <PieChart>
                 <Pie
                   data={slices}
@@ -51,9 +62,9 @@ export default function EnvironmentDonutCard({ stats, mode }) {
                     <Cell key={slice.name} fill={environmentColor(slice.name, mode)} />
                   ))}
                 </Pie>
-                <Tooltip content={<SliceTooltip total={total} unit={unit} />} />
+                <Tooltip content={<SliceTooltip total={total} unit={unit} />} {...TOOLTIP_PROPS} />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             <div className="env-donut__center" aria-hidden="true">
               <span className="env-donut__total">{total}</span>
               <span className="env-donut__unit">{unit}</span>
@@ -76,11 +87,6 @@ export default function EnvironmentDonutCard({ stats, mode }) {
             ))}
           </ul>
         </div>
-      )}
-      {withoutEnvironment > 0 && (
-        <p className="metric-card__subtext">
-          {withoutEnvironment} {unit} sin Environment no se incluyen
-        </p>
       )}
     </MetricCard>
   );

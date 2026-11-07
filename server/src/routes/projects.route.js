@@ -44,6 +44,7 @@ router.get('/projects/:key/bug-stats', async (req, res, next) => {
           key: group.key,
           label: group.label,
           icon: group.icon,
+          description: group.description || `Proyectos: ${[].concat(group.jiraProjectKey).join(', ')}`,
           stats: await statsFor(group.jiraProjectKey),
         }))
       );

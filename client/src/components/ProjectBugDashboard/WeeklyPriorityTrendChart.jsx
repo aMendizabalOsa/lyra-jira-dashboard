@@ -1,4 +1,6 @@
-import { Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts';
+import ChartContainer, { TOOLTIP_PROPS } from './ChartContainer';
+import { formatNumber } from '../../utils/format';
 import { STATUS } from '../../config/targetColors';
 
 function formatWeekLabel(iso) {
@@ -12,7 +14,7 @@ function TrendTooltip({ active, payload, label, target }) {
     <div className="chart-tooltip">
       <strong>Semana del {formatWeekLabel(label)}</strong>
       <span>
-        {avg} días ({count} {count === 1 ? 'bug' : 'bugs'})
+        {formatNumber(avg)} días ({count} {count === 1 ? 'bug abierto' : 'bugs abiertos'})
       </span>
       <span>
         {avg <= target ? '✓' : '✕'} Objetivo: {target} días
@@ -23,7 +25,7 @@ function TrendTooltip({ active, payload, label, target }) {
 
 // Evolución semanal de un único bucket de prioridad: una barra por semana.
 // Un solo color (el de ese bucket) — no hace falta leyenda, el título de la
-// tarjeta ya nombra la serie. La línea discontinua marca el objetivo de
+// tarjeta ya nombra la serie. El eje Y lleva los días. La línea discontinua marca el objetivo de
 // resolución de esa prioridad (el eje siempre llega hasta ella); su valor va
 // en la leyenda de la tarjeta, porque dentro del gráfico lo tapan las barras.
 export default function WeeklyPriorityTrendChart({ points, bucket, color, target }) {
@@ -34,7 +36,7 @@ export default function WeeklyPriorityTrendChart({ points, bucket, color, target
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={170}>
+    <ChartContainer height={170}>
       <BarChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 0 }} barCategoryGap="24%">
         <CartesianGrid stroke="var(--surface-2)" vertical={false} />
         <XAxis
@@ -46,8 +48,16 @@ export default function WeeklyPriorityTrendChart({ points, bucket, color, target
           interval={5}
           minTickGap={16}
         />
-        <YAxis hide domain={[0, (max) => Math.ceil(Math.max(max, target) * 1.15)]} />
-        <Tooltip content={<TrendTooltip target={target} />} cursor={{ fill: 'var(--surface-2)' }} />
+        <YAxis
+          domain={[0, (max) => Math.ceil(Math.max(max, target) * 1.15)]}
+          tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+          tickFormatter={(v) => `${formatNumber(v)}d`}
+          axisLine={false}
+          tickLine={false}
+          width={40}
+          allowDecimals={false}
+        />
+        <Tooltip content={<TrendTooltip target={target} />} cursor={{ fill: 'var(--surface-2)' }} {...TOOLTIP_PROPS} />
         <Bar dataKey="average" fill={color} radius={[2, 2, 0, 0]} maxBarSize={14} />
         <ReferenceLine
           y={target}
@@ -57,6 +67,6 @@ export default function WeeklyPriorityTrendChart({ points, bucket, color, target
           ifOverflow="extendDomain"
         />
       </BarChart>
-    </ResponsiveContainer>
+    </ChartContainer>
   );
 }

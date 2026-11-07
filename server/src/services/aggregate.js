@@ -56,6 +56,14 @@ function average(numbers) {
   return round1(numbers.reduce((sum, n) => sum + n, 0) / numbers.length);
 }
 
+// Mediana: a diferencia de la media, no la disparan unos pocos bugs muy antiguos.
+function median(numbers) {
+  if (numbers.length === 0) return 0;
+  const sorted = [...numbers].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return round1(sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2);
+}
+
 /**
  * Media de días entre `fromField` y `toDate` (o ahora), global y por bucket,
  * junto con el número de issues (n) que entran en cada media.
@@ -79,7 +87,7 @@ function averageAgeDaysByPriority(issues, fromField, hotfixFieldId, toDate = new
     byPriority[bucket] = { average: average(byBucketDays[bucket]), count: byBucketDays[bucket].length };
   }
 
-  return { overallAverage: average(allDays), overallCount: allDays.length, byPriority };
+  return { overallAverage: average(allDays), overallMedian: median(allDays), overallCount: allDays.length, byPriority };
 }
 
 /**
@@ -106,7 +114,7 @@ function averageDurationDaysByPriority(issues, fromField, toField, hotfixFieldId
     byPriority[bucket] = { average: average(byBucketDays[bucket]), count: byBucketDays[bucket].length };
   }
 
-  return { overallAverage: average(allDays), overallCount: allDays.length, byPriority };
+  return { overallAverage: average(allDays), overallMedian: median(allDays), overallCount: allDays.length, byPriority };
 }
 
 /**

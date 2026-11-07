@@ -1,13 +1,14 @@
 import MetricCard from './MetricCard';
 import PriorityBarChart from './PriorityBarChart';
 import TargetLegend from './TargetLegend';
+import { formatDays, formatNumber } from '../../utils/format';
 
 export default function ResolutionTimeCard({ resolutionTimeDays, targetDays, mode }) {
   return (
     <MetricCard
-      title={`Tiempo medio de resolución (últimos ${resolutionTimeDays.windowMonths} meses)`}
-      headline={`${resolutionTimeDays.overallAverage} días`}
-      subtext={`n = ${resolutionTimeDays.overallCount} bugs`}
+      title={`Tiempo de resolución (últimos ${resolutionTimeDays.windowMonths} meses)`}
+      headline={formatDays(resolutionTimeDays.overallMedian)}
+      subtext={`mediana · media ${formatNumber(resolutionTimeDays.overallAverage)} · n = ${resolutionTimeDays.overallCount} bugs`}
       link={resolutionTimeDays.overallLink}
     >
       <TargetLegend showMark />
@@ -16,7 +17,7 @@ export default function ResolutionTimeCard({ resolutionTimeDays, targetDays, mod
         unit="días"
         mode={mode}
         valueKey="average"
-        valueFormatter={(v) => `${v}d`}
+        valueFormatter={(v) => `${formatNumber(v)}d`}
         targetDays={targetDays}
       />
     </MetricCard>

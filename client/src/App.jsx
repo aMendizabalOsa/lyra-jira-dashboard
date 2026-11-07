@@ -10,6 +10,11 @@ import ProjectWithPlanning from './components/ProjectWithPlanning';
 export default function App() {
   const [activeKey, setActiveKey] = useState(TABS[0].key);
   const [closed, setClosed] = useState(false);
+  // Se guardan aquí (y no en cada pestaña) para que al cambiar de proyecto se
+  // siga en la misma sub-pestaña y el mismo grupo de estadísticas.
+  const [subTabKey, setSubTabKey] = useState('planning');
+  const [statsGroupKey, setStatsGroupKey] = useState(null);
+  const groupProps = { statsGroupKey, onStatsGroupChange: setStatsGroupKey };
   const activeTab = TABS.find((tab) => tab.key === activeKey);
 
   if (closed) {
@@ -31,20 +36,27 @@ export default function App() {
           <ColorModeToggle />
         </div>
         <p className="app__eyebrow">cafpower.atlassian.net</p>
-        <h1>Estadísticas de bugs</h1>
-        <p className="app__subtitle">Panorama en vivo de los bugs abiertos y resueltos por proyecto</p>
+        <h1>Dashboard Jira</h1>
+        <p className="app__subtitle">Planificación de issues y estadísticas de bugs por proyecto, en vivo</p>
       </header>
       <TabNav tabs={TABS} activeKey={activeKey} onSelect={setActiveKey} />
       <main className="app__content">
         {!activeTab.enabled ? (
           <TabPlaceholder displayName={activeTab.label} />
         ) : activeTab.planning ? (
-          <ProjectWithPlanning key={activeTab.key} tabKey={activeTab.key} displayName={activeTab.label} />
+          <ProjectWithPlanning
+            key={activeTab.key}
+            tabKey={activeTab.key}
+            displayName={activeTab.label}
+            subTabKey={subTabKey}
+            onSubTabChange={setSubTabKey}
+            {...groupProps}
+          />
         ) : (
-          <ProjectBugDashboard tabKey={activeTab.key} displayName={activeTab.label} />
+          <ProjectBugDashboard key={activeTab.key} tabKey={activeTab.key} displayName={activeTab.label} {...groupProps} />
         )}
       </main>
-      <footer className="app__footer">Dashboard de bugs · v{__APP_VERSION__}</footer>
+      <footer className="app__footer">Dashboard Jira · v{__APP_VERSION__}</footer>
     </div>
   );
 }

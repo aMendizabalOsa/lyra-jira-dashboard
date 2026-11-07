@@ -1,5 +1,4 @@
 const { searchIssues } = require('../jira/searchIssues');
-const { countIssues } = require('../jira/countIssues');
 const { jiraIssueSearchUrl } = require('../jira/jiraLinks');
 const { projectClause } = require('../jira/jql');
 const { jiraBaseUrl } = require('../config/env');
@@ -32,9 +31,13 @@ async function statsForType({ jiraProjectKey, issueType, jiraIssueType = issueTy
   const base = `${projectClause(jiraProjectKey)} AND issuetype = "${jiraIssueType}"`;
   const withEnv = `${base} AND ${fieldClause} is not EMPTY`;
 
-  const [issues, all] = await Promise.all([
+  const withoutEnv = `${base} AND ${fieldClause} is EMPTY`;
+
+  // Recuento exacto de los que no tienen Environment: approximate-count
+  // devolvía la misma cifra para conjuntos de proyectos distintos.
+  const [issues, missing] = await Promise.all([
     searchIssues(withEnv, [environmentFieldId]),
-    countIssues(base),
+    searchIssues(withoutEnv, ['key']),
   ]);
 
   const counts = {};
@@ -65,7 +68,8 @@ async function statsForType({ jiraProjectKey, issueType, jiraIssueType = issueTy
     issueType,
     total: issues.length,
     // Issues del tipo sin Environment informado: no entran en el donut.
-    withoutEnvironment: Math.max(all - issues.length, 0),
+    withoutEnvironment: missing.length,
+    withoutEnvironmentLink: jiraIssueSearchUrl(jiraBaseUrl, withoutEnv),
     link: jiraIssueSearchUrl(jiraBaseUrl, withEnv),
     slices,
   };

@@ -13,7 +13,7 @@ const projects = {
     // Planificación de Lyra: issues creados en el último periodo (window) por tipo
     // (ver services/planningService.js).
     planningEnabled: true,
-    // Tres recuentos por tipo, de más estricto a más amplio (`tiers`, en el orden en que se muestran). `unplanned`
+    // Tres recuentos por tipo, en embudo de más amplio a más estricto (`tiers`, en el orden en que se muestran). `unplanned`
     // es "sin planificar": sin sprint para Bug/Story/FormalDoc, fuera de To Do
     // para Task (se mira el estado, no el sprint). `unplannedHigh` añade
     // prioridad superior a Low.
@@ -21,14 +21,16 @@ const projects = {
       window: '-30d', // JQL relativo (ojo: -1M sería 1 minuto, no 1 mes)
       windowLabel: 'los últimos 30 días',
       tiers: [
-        { key: 'unplannedHigh', label: 'Sin planificar, prioridad > Low' },
-        { key: 'unplanned', label: 'Sin planificar' },
         { key: 'all', label: 'Nuevos' },
+        { key: 'unplanned', label: 'Sin planificar' },
+        { key: 'unplannedHigh', label: 'Sin planificar, prioridad > Low' },
       ],
       issueTypes: [
         { type: 'Bug', unplannedFilter: 'sprint is EMPTY' },
         { type: 'Story', unplannedFilter: 'sprint is EMPTY' },
-        { type: 'Task', unplannedFilter: 'status = "To Do"', ignorePriority: true },
+        // Task no se planifica por sprint ni usa prioridad: "sin planificar" es
+        // seguir en To Do, y el recuento con prioridad > Low no aplica.
+        { type: 'Task', unplannedFilter: 'status = "To Do"', unplannedLabel: 'En To Do', ignorePriority: true },
         { type: 'FormalDoc', unplannedFilter: 'sprint is EMPTY' },
       ],
     },
@@ -147,6 +149,7 @@ projects.lyra.statsGroups = [
   {
     key: 'global',
     label: 'Global',
+    description: 'Lyra + aplicaciones genéricas de test de CpuApp + DspApp + FpgaApp',
     jiraProjectKey: [
       projects.lyra.jiraProjectKey,
       ...cpuGeneric.jiraProjectKey,
@@ -154,7 +157,12 @@ projects.lyra.statsGroups = [
       ...projects.fpgaapp.jiraProjectKey,
     ],
   },
-  { key: 'components', label: 'Componentes', jiraProjectKey: projects.lyra.jiraProjectKey },
+  {
+    key: 'components',
+    label: 'Componentes',
+    description: 'Solo el proyecto LYRA (componentes de Lyra)',
+    jiraProjectKey: projects.lyra.jiraProjectKey,
+  },
 ];
 
 module.exports = projects;
