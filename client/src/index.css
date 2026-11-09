@@ -478,6 +478,7 @@ body {
 
 .planning-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
 }
@@ -495,12 +496,10 @@ body {
   border-bottom: none;
 }
 
-/* Columnas numéricas de igual ancho, centradas bajo su cabecera. */
-.planning-table thead th:not(:first-child) {
-  width: 18%;
-}
-
+/* Primera columna (Tipo/Grupo) estrecha y el resto repartido a partes
+   iguales, haya 3 columnas numéricas (Lyra) o 4 (grupos). */
 .planning-table th:first-child {
+  width: 22%;
   text-align: left;
 }
 
